@@ -1,6 +1,5 @@
 import argparse
 from model import *
-from utils import *
 import os
 import time
 from torch.utils.data import DataLoader
