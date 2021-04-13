@@ -31,6 +31,7 @@ class IAN(nn.Module):
 
     def __init__(self,embedding):
         super(IAN, self).__init__()
+        self.attention_required = attention_required
         self.vocab_size = len(get_word_id())
         self.embedding_size = embedding_size
         self.hidden_size = hidden_size
@@ -59,15 +60,22 @@ class IAN(nn.Module):
         context_output, _ = self.context_lstm(context)
         context_output = context_output * context_mask.unsqueeze(-1)
         context_avg = context_output.sum(dim=1, keepdim=False) / context_mask.sum(dim=1, keepdim=True)
-        aspect_attn = self.aspect_attn(context_avg, aspect_output, aspect_mask).unsqueeze(1)
-        aspect_features = aspect_attn.matmul(aspect_output).squeeze()
-        context_attn = self.context_attn(aspect_avg, context_output, context_mask).unsqueeze(1)
-        context_features = context_attn.matmul(context_output).squeeze()
-        features = torch.cat([aspect_features, context_features], dim=1)
-        features = self.dropout(features)
-        output = self.fc(features)
-        output = torch.tanh(output)
-        return output
+        
+        if self.attention_required:
+            aspect_attn = self.aspect_attn(context_avg, aspect_output, aspect_mask).unsqueeze(1)
+            aspect_features = aspect_attn.matmul(aspect_output).squeeze()
+            context_attn = self.context_attn(aspect_avg, context_output, context_mask).unsqueeze(1)
+            context_features = context_attn.matmul(context_output).squeeze()
+            features = torch.cat([aspect_features, context_features], dim=1)
+            features = self.dropout(features)
+            output = self.fc(features)
+            output = torch.tanh(output)
+            return output
+
+        else:
+            return "s"
+
+        
 
 
 
