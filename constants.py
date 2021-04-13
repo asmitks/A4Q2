@@ -17,7 +17,6 @@ clip = 3.0
 dropout = 0.01
 max_aspect_len = 21
 max_context_len = 83
-dataset = "data/restaurant/"
 embedding_file_name = "../drive/MyDrive/glove/glove.840B.300d.txt"
 embedding = 0
 vocab_size = 0
