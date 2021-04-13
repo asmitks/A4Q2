@@ -7,7 +7,6 @@ import torch.optim as optim
 from constants import *
 from helper import *
 from dataset import IanDataset
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 def main():
