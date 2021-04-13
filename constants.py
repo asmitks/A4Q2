@@ -3,7 +3,7 @@ testFiles = {'Laptops':'ABSA complete Dataset/ABSA Test/Laptops_Test_Gold.xml','
 
 train_data = "train.csv"
 test_data = "test.csv"
-
+topic = 'laptop'
 all_data = "data.csv"
 embedding_size = 300
 batch_size = 128

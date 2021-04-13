@@ -32,9 +32,10 @@ def get_word_id():
                 word_id[token]=len(word_id)
     return word_id
 
-def get_final_data(type):
+def get_final_data(type,topic):
     word_id = get_word_id()
     df = pd.read_csv(f'{type}.csv')
+    df = df[df['topic']==topic]
     finalaspects, finalcontexts, finallabels, finalaspect_lens, finalcontext_lens = list(), list(), list(), list(), list()
     allaspects = df.aspect.to_list()
     allcontexts = df.tokens.to_list()

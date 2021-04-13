@@ -11,8 +11,8 @@ from dataset import IanDataset
 
 def main():
     start_time = time.time()
-    test_data = get_final_data('test')
-    train_data = get_final_data('train')
+    test_data = get_final_data('test',topic)
+    train_data = get_final_data('train',topic)
 
     embedding = load_word_embeddings()
     train_dataset = IanDataset('dataset_train.npz')
