@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 import torch.optim as optim
 from constants import *
 from helper import *
-from dataset import IanDataset
+from dataset import sentenceDataset
 
 
 def main():
@@ -15,8 +15,8 @@ def main():
     train_data = get_final_data('train',topic)
 
     embedding = load_word_embeddings()
-    train_dataset = IanDataset('dataset_train.npz')
-    test_dataset = IanDataset('dataset_test.npz')
+    train_dataset = sentenceDataset('dataset_train.npz')
+    test_dataset = sentenceDataset('dataset_test.npz')
     train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     model = IAN(embedding).cuda()
@@ -27,11 +27,10 @@ def main():
         train_total_cases = 0
         train_correct_cases = 0
         for data in train_loader:
-            aspects, contexts, labels, aspect_masks, context_masks = data
+            aspects, contexts, labels= data
             aspects, contexts, labels = aspects.cuda(), contexts.cuda(), labels.cuda()
-            aspect_masks, context_masks = aspect_masks.cuda(), context_masks.cuda()
             optimizer.zero_grad()
-            outputs = model(aspects, contexts, aspect_masks, context_masks)
+            outputs = model(aspects, contexts)
             _, predicts = outputs.max(dim=1)
             train_total_cases += labels.shape[0]
             train_correct_cases += (predicts == labels).sum().item()
@@ -43,10 +42,9 @@ def main():
         test_total_cases = 0
         test_correct_cases = 0
         for data in test_loader:
-            aspects, contexts, labels, aspect_masks, context_masks = data
+            aspects, contexts, labels = data
             aspects, contexts, labels = aspects.cuda(), contexts.cuda(), labels.cuda()
-            aspect_masks, context_masks = aspect_masks.cuda(), context_masks.cuda()
-            outputs = model(aspects, contexts, aspect_masks, context_masks)
+            outputs = model(aspects, contexts)
             _, predicts = outputs.max(dim=1)
             test_total_cases += labels.shape[0]
             test_correct_cases += (predicts == labels).sum().item()

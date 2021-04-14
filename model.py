@@ -11,7 +11,7 @@ class Attention(nn.Module):
         self.weights = nn.Parameter(torch.rand(key_size, query_size) * 0.2 - 0.1)
         self.bias = nn.Parameter(torch.zeros(1))
 
-    def forward(self, query, key, mask):
+    def forward(self, query, key):
         
         batch_size = key.size(0)
         time_step = key.size(1)
@@ -23,7 +23,7 @@ class Attention(nn.Module):
         scores = torch.tanh(key.matmul(mids).squeeze() + self.bias)   # (batch_size, time_step, 1, 1)
         scores = scores.squeeze()   # (batch_size, time_step)
         scores = scores - scores.max(dim=1, keepdim=True)[0]
-        scores = torch.exp(scores) * mask
+        scores = torch.exp(scores) 
         attn_weights = scores / scores.sum(dim=1, keepdim=True)
         return attn_weights
 
@@ -49,7 +49,7 @@ class IAN(nn.Module):
         self.fc = nn.Linear(self.hidden_size * 2, self.n_class)
         self.embedding.weight.data.copy_(torch.from_numpy(embedding))
 
-    def forward(self, aspect, context, aspect_mask, context_mask):
+    def forward(self, aspect, context):
         '''making aspect embeddings'''
         aspect = self.embedding(aspect)
         aspect = self.dropout(aspect)
@@ -64,9 +64,9 @@ class IAN(nn.Module):
         
         if self.attention_required:
 
-            aspect_attn = self.aspect_attn(context_avg, aspect_output, aspect_mask).unsqueeze(1)
+            aspect_attn = self.aspect_attn(context_avg, aspect_output).unsqueeze(1)
             aspect_features = aspect_attn.matmul(aspect_output).squeeze()
-            context_attn = self.context_attn(aspect_avg, context_output, context_mask).unsqueeze(1)
+            context_attn = self.context_attn(aspect_avg, context_output).unsqueeze(1)
             context_features = context_attn.matmul(context_output).squeeze()
             features = torch.cat([aspect_features, context_features], dim=1)
             features = self.dropout(features)
