@@ -8,6 +8,11 @@ import ast
 from constants import *
 
 def load_word_embeddings():
+    try:
+      return pickle.load(open('embedmat','rb'))
+    except:
+      pass
+
     word_id = get_word_id()
 
     embedMatrix = np.random.uniform(-0.01, 0.01, [len(word_id), embedding_dim])
@@ -19,12 +24,13 @@ def load_word_embeddings():
             if word in word_id:
                 embedMatrix[word_id[content[0]]] = np.array(list(map(float, embedding)))
     embedMatrix[0, :] = 0
+    pickle.dump(embedMatrix,open('embedmat','wb'))
     return embedMatrix
 
 def get_word_id():
     df = pd.read_csv(all_data)
-    all_tokens = df.tokens.to_list()
-    all_tokens.extend(df.aspect.to_list())
+    all_tokens = [ast.literal_eval(x) for x in df.tokens.to_list()]
+    all_tokens.extend([ast.literal_eval(x) for x in df.aspect.to_list()])
     word_id={"$":0}
     for sent in all_tokens:
         for token in sent:
@@ -34,11 +40,10 @@ def get_word_id():
 
 def get_final_data(type,topic):
     word_id = get_word_id()
+    print(list(word_id.keys())[12])
     df = pd.read_csv(f'{type}.csv')
     df = df[df['topic']==topic]
     finalaspects, finalcontexts, finallabels, finalaspect_lens, finalcontext_lens = list(), list(), list(), list(), list()
-    allaspects = df.aspect.to_list()
-    allcontexts = df.tokens.to_list()
     labels = df.label.to_list()
     for ind,row in df.iterrows():
         context = ast.literal_eval(row['tokens'])

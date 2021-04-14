@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from constants import *
-from helper import get_word_id
+from helper import get_word_id,get_final_data
 
 
 class IanDataset(Dataset):
@@ -32,3 +32,5 @@ class IanDataset(Dataset):
 
     def __len__(self):
         return self.len
+
+

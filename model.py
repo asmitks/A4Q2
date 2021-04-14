@@ -53,15 +53,16 @@ class IAN(nn.Module):
         aspect = self.embedding(aspect)
         aspect = self.dropout(aspect)
         aspect_output, _ = self.aspect_lstm(aspect)
-        aspect_output = aspect_output * aspect_mask.unsqueeze(-1)
-        aspect_avg = aspect_output.sum(dim=1, keepdim=False) / aspect_mask.sum(dim=1, keepdim=True)
+        aspect_avg = torch.mean(aspect_output,1)
+
+
         context = self.embedding(context)
         context = self.dropout(context)
         context_output, _ = self.context_lstm(context)
-        context_output = context_output * context_mask.unsqueeze(-1)
-        context_avg = context_output.sum(dim=1, keepdim=False) / context_mask.sum(dim=1, keepdim=True)
+        context_avg = torch.mean(context_output,1)
         
         if self.attention_required:
+
             aspect_attn = self.aspect_attn(context_avg, aspect_output, aspect_mask).unsqueeze(1)
             aspect_features = aspect_attn.matmul(aspect_output).squeeze()
             context_attn = self.context_attn(aspect_avg, context_output, context_mask).unsqueeze(1)
@@ -73,10 +74,13 @@ class IAN(nn.Module):
             return output
 
         else:
-            return "s"
+
+            features = torch.cat([aspect_features, context_features], dim=1)
+            features = self.dropout(features)
+            output = self.fc(features)
+            output = torch.tanh(output)
+            return output
 
         
 
 
-
-# traindata = IanDataset('dataset_train.npz')
