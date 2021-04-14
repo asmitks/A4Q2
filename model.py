@@ -50,6 +50,7 @@ class IAN(nn.Module):
         self.embedding.weight.data.copy_(torch.from_numpy(embedding))
 
     def forward(self, aspect, context, aspect_mask, context_mask):
+        '''making aspect embeddings'''
         aspect = self.embedding(aspect)
         aspect = self.dropout(aspect)
         aspect_output, _ = self.aspect_lstm(aspect)
@@ -75,7 +76,7 @@ class IAN(nn.Module):
 
         else:
 
-            features = torch.cat([aspect_features, context_features], dim=1)
+            features = torch.cat([aspect_output, context_output], dim=1)
             features = self.dropout(features)
             output = self.fc(features)
             output = torch.tanh(output)

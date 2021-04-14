@@ -40,7 +40,6 @@ def get_word_id():
 
 def get_final_data(type,topic):
     word_id = get_word_id()
-    print(list(word_id.keys())[12])
     df = pd.read_csv(f'{type}.csv')
     df = df[df['topic']==topic]
     finalaspects, finalcontexts, finallabels, finalaspect_lens, finalcontext_lens = list(), list(), list(), list(), list()
