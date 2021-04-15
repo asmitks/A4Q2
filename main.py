@@ -50,7 +50,10 @@ def main():
             test_correct_cases += (predicts == labels).sum().item()
         test_accuracy = test_correct_cases / test_total_cases
         print('[epoch %03d] train accuracy: %.4f test accuracy: %.4f' % (epoch, train_accuracy, test_accuracy))
-        max_acc = max(max_acc, test_accuracy)
+        if test_accuracy>max_acc:
+            max_acc = max(max_acc, test_accuracy)
+            torch.save(model.state_dict(), model_path + model_name)
+        
     print('max test accuracy:', max_acc)
     end_time = time.time()
     print('Time Costing: %s' % (end_time - start_time))
