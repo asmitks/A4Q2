@@ -14,7 +14,7 @@ def main():
     test_data = get_final_data('test',topic)
     train_data = get_final_data('train',topic)
 
-    embedding = load_word_embeddings()
+    embedding = get_embeddings()
     train_dataset = sentenceDataset('dataset_train.npz')
     test_dataset = sentenceDataset('dataset_test.npz')
     train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)

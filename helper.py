@@ -7,7 +7,7 @@ import pickle
 import ast
 from constants import *
 
-def load_word_embeddings():
+def get_embeddings():
     try:
       return pickle.load(open('embedmat','rb'))
     except:
@@ -111,4 +111,4 @@ def xml_to_csv():
 
 
 
-# load_word_embeddings()
+# get_embeddings()

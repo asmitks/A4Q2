@@ -50,23 +50,29 @@ class IAN(nn.Module):
         self.embedding.weight.data.copy_(torch.from_numpy(embedding))
 
     def forward(self, aspect, context):
+
+        '''making context embeddings'''
+        context = self.embedding(context)
+        context = self.dropout(context)
+        context_output, _ = self.context_lstm(context)
+        mean_context = torch.mean(context_output,1)
+
+
         '''making aspect embeddings'''
         aspect = self.embedding(aspect)
         aspect = self.dropout(aspect)
         aspect_output, _ = self.aspect_lstm(aspect)
-        aspect_avg = torch.mean(aspect_output,1)
+        mean_aspect = torch.mean(aspect_output,1)
+        
+        
 
-
-        context = self.embedding(context)
-        context = self.dropout(context)
-        context_output, _ = self.context_lstm(context)
-        context_avg = torch.mean(context_output,1)
+        
         
         if self.attention_required:
 
-            aspect_attn = self.aspect_attn(context_avg, aspect_output).unsqueeze(1)
+            aspect_attn = self.aspect_attn(mean_context, aspect_output).unsqueeze(1)
             aspect_features = aspect_attn.matmul(aspect_output).squeeze()
-            context_attn = self.context_attn(aspect_avg, context_output).unsqueeze(1)
+            context_attn = self.context_attn(mean_aspect, context_output).unsqueeze(1)
             context_features = context_attn.matmul(context_output).squeeze()
             features = torch.cat([aspect_features, context_features], dim=1)
             features = self.dropout(features)
@@ -75,8 +81,8 @@ class IAN(nn.Module):
             return output
 
         else:
-
-            features = torch.cat([aspect_output, context_output], dim=1)
+            '''Concatenating in case attention_required is false'''
+            features = torch.cat([mean_aspect, mean_context], dim=1)
             features = self.dropout(features)
             output = self.fc(features)
             output = torch.tanh(output)
