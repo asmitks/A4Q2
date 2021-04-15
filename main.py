@@ -53,6 +53,7 @@ def main():
         if test_accuracy>max_acc:
             max_acc = max(max_acc, test_accuracy)
             torch.save(model.state_dict(), model_path + model_name)
+            print("updated model is saved")
         
     print('max test accuracy:', max_acc)
     end_time = time.time()
