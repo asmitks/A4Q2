@@ -13,11 +13,7 @@ from dataset import sentenceDataset
 #laptop-att-false 66.03
 #laptop-att-tru 0.6809
 def main(getWeights = False):
-    if getWeights:
-        model = IAN(embedding).cuda()
-        model.load_state_dict(torch.load(MODEL_PATH))
-        model.eval()
-
+    
     start_time = time.time()
     test_data = get_final_data('test',topic)
     train_data = get_final_data('train',topic)
@@ -40,6 +36,7 @@ def main(getWeights = False):
             test_correct_cases += (predicts == labels).sum().item()
         test_accuracy = test_correct_cases / test_total_cases
         print(test)
+        return
 
     else:
         model = IAN(embedding).cuda()
@@ -82,4 +79,4 @@ def main(getWeights = False):
     end_time = time.time()
     print('Time Costing: %s' % (end_time - start_time))
 
-main()
+main(true)

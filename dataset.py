@@ -16,7 +16,6 @@ class sentenceDataset(Dataset):
         self.labels = torch.from_numpy(data['labels']).long()
         self.aspect_lens = torch.from_numpy(data['aspect_lens']).long()
         self.context_lens = torch.from_numpy(data['context_lens']).long()
-        self.len = self.labels.shape[0]
         aspect_max_len = self.aspects.size(1)
         context_max_len = self.contexts.size(1)
         
@@ -24,6 +23,6 @@ class sentenceDataset(Dataset):
         return self.aspects[index], self.contexts[index], self.labels[index]
 
     def __len__(self):
-        return self.len
+        return self.labels.shape[0]
 
 
