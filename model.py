@@ -8,7 +8,7 @@ from helper import get_word_id
 class interactiveAttentionNetwork(nn.Module):
 
     def __init__(self,embedding):
-        super(IAN, self).__init__()
+        super(interactiveAttentionNetwork, self).__init__()
 
         self.embedding = nn.Embedding(num_embeddings=len(get_word_id()), embedding_dim=300)
         self.aspect_lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=300, batch_first=True)
