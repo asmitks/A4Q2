@@ -4,50 +4,27 @@ import torch.nn.functional as F
 import numpy as np
 from constants import *
 from helper import get_word_id
-class Attention(nn.Module):
 
-    def __init__(self, query_size, key_size):
-        super(Attention, self).__init__()
-        self.weights = nn.Parameter(torch.rand(key_size, query_size) * 0.2 - 0.1)
-        self.bias = nn.Parameter(torch.zeros(1))
-
-    def forward(self, query, key):
-        
-        batch_size = key.size(0)
-        time_step = key.size(1)
-        weights = self.weights.repeat(batch_size, 1, 1) # (batch_size, key_size, query_size)
-        query = query.unsqueeze(-1)    # (batch_size, query_size, 1)
-        mids = weights.matmul(query)    # (batch_size, key_size, 1)
-        mids = mids.repeat(time_step, 1, 1, 1).transpose(0, 1) # (batch_size, time_step, key_size, 1)
-        key = key.unsqueeze(-2)    # (batch_size, time_step, 1, key_size)
-        scores = torch.tanh(key.matmul(mids).squeeze() + self.bias)   # (batch_size, time_step, 1, 1)
-        scores = scores.squeeze()   # (batch_size, time_step)
-        scores = scores - scores.max(dim=1, keepdim=True)[0]
-        scores = torch.exp(scores) 
-        attn_weights = scores / scores.sum(dim=1, keepdim=True)
-        return attn_weights
-
-class IAN(nn.Module):
+class interactiveAttentionNetwork(nn.Module):
 
     def __init__(self,embedding):
         super(IAN, self).__init__()
-        self.attention_required = attention_required
-        self.vocab_size = len(get_word_id())
-        self.embedding_size = embedding_size
-        self.hidden_size = hidden_size
-        self.n_class = n_class
-        self.l2_reg = l2_reg
-        self.max_aspect_len = max_aspect_len
-        self.max_context_len = max_context_len
 
-        self.embedding = nn.Embedding(num_embeddings=self.vocab_size, embedding_dim=self.embedding_size)
-        self.aspect_lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=self.hidden_size, batch_first=True)
-        self.context_lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=self.hidden_size, batch_first=True)
-        self.aspect_attn = Attention(self.hidden_size, self.hidden_size)
-        self.context_attn = Attention(self.hidden_size, self.hidden_size)
-        self.dropout = nn.Dropout(dropout)
-        self.fc = nn.Linear(self.hidden_size * 2, self.n_class)
+        self.embedding = nn.Embedding(num_embeddings=len(get_word_id()), embedding_dim=300)
+        self.aspect_lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=300, batch_first=True)
+        self.context_lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=300, batch_first=True)
+        self.aspect_attn = Attention(300, 300)
+        self.context_attn = Attention(300, 300)
+        self.fc = nn.Linear(600, 3)
         self.embedding.weight.data.copy_(torch.from_numpy(embedding))
+
+        self.attention_required = attention_required
+
+
+        self.l2_reg = l2_reg
+        self.dropout = nn.Dropout(dropout)
+
+
 
     def forward(self, aspect, context):
 
@@ -90,4 +67,26 @@ class IAN(nn.Module):
 
         
 
+class Attention(nn.Module):
+
+    def __init__(self, query_size, key_size):
+        super(Attention, self).__init__()
+        self.weights = nn.Parameter(torch.rand(key_size, query_size) * 0.2 - 0.1)
+        self.bias = nn.Parameter(torch.zeros(1))
+
+    def forward(self, query, key):
+        
+        batch_size = key.size(0)
+        time_step = key.size(1)
+        weights = self.weights.repeat(batch_size, 1, 1) 
+        query = query.unsqueeze(-1)    
+        mids = weights.matmul(query)   
+        mids = mids.repeat(time_step, 1, 1, 1).transpose(0, 1) 
+        key = key.unsqueeze(-2)   
+        scores = torch.tanh(key.matmul(mids).squeeze() + self.bias)   
+        scores = scores.squeeze()   
+        scores = scores - scores.max(dim=1, keepdim=True)[0]
+        scores = torch.exp(scores) 
+        attn_weights = scores / scores.sum(dim=1, keepdim=True)
+        return attn_weights
 

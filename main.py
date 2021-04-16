@@ -24,7 +24,7 @@ def main(getWeights = False):
     train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     if getWeights:
-        model = IAN(embedding).cuda()
+        model = interactiveAttentionNetwork(embedding).cuda()
         model.load_state_dict(torch.load(MODEL_PATH))
         # model.eval()
         test_total_cases = 0
@@ -41,7 +41,7 @@ def main(getWeights = False):
         return
 
     else:
-        model = IAN(embedding).cuda()
+        model = interactiveAttentionNetwork(embedding).cuda()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=l2_reg)
     max_acc = 0
@@ -71,7 +71,7 @@ def main(getWeights = False):
             test_total_cases += labels.shape[0]
             test_correct_cases += (predicts == labels).sum().item()
         test_accuracy = test_correct_cases / test_total_cases
-        print('[epoch %03d] train accuracy: %.4f test accuracy: %.4f' % (epoch, train_accuracy, test_accuracy))
+        print('[epoch %03d] Current train accuracy: %.4f Current test accuracy: %.4f' % (epoch, train_accuracy, test_accuracy))
         if test_accuracy>max_acc:
             max_acc = max(max_acc, test_accuracy)
             torch.save(model.state_dict(), model_path + model_name)
