@@ -26,3 +26,5 @@ embedding_size = 300
 attention_required = True
 model_path = "../drive/MyDrive/glove"
 model_name = f"{topic}_{"with_attention" if attention_required else "basic" }"
+
+MODEL_PATH =f"../drive/MyDrive/glove/{topic}_{"with_attention" if attention_required else "basic" }"

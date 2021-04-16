@@ -8,8 +8,16 @@ from constants import *
 from helper import *
 from dataset import sentenceDataset
 
+#rest-att-true 76.77
+#ret -att-false 0.74137
+#laptop-att-false 66.03
+#laptop-att-tru 0.6809
+def main(getWeights = False):
+    if getWeights:
+        model = IAN(embedding).cuda()
+        model.load_state_dict(torch.load(MODEL_PATH))
+        model.eval()
 
-def main():
     start_time = time.time()
     test_data = get_final_data('test',topic)
     train_data = get_final_data('train',topic)
@@ -19,7 +27,22 @@ def main():
     test_dataset = sentenceDataset('dataset_test.npz')
     train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
-    model = IAN(embedding).cuda()
+    if getWeights:
+        model = IAN(embedding).cuda()
+        model.load_state_dict(torch.load(MODEL_PATH))
+        # model.eval()
+        for data in test_loader:
+            aspects, contexts, labels = data
+            aspects, contexts, labels = aspects.cuda(), contexts.cuda(), labels.cuda()
+            outputs = model(aspects, contexts)
+            _, predicts = outputs.max(dim=1)
+            test_total_cases += labels.shape[0]
+            test_correct_cases += (predicts == labels).sum().item()
+        test_accuracy = test_correct_cases / test_total_cases
+        print(test)
+
+    else:
+        model = IAN(embedding).cuda()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=l2_reg)
     max_acc = 0
@@ -59,5 +82,4 @@ def main():
     end_time = time.time()
     print('Time Costing: %s' % (end_time - start_time))
 
-if __name__ == '__main__':
-    main()
+main()
