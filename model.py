@@ -11,8 +11,8 @@ class interactiveAttentionNetwork(nn.Module):
         super(interactiveAttentionNetwork, self).__init__()
 
         self.embedding = nn.Embedding(num_embeddings=len(get_word_id()), embedding_dim=300)
-        self.aspect_lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=300, batch_first=True)
-        self.context_lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=300, batch_first=True)
+        self.aspect_lstm = nn.LSTM(input_size=300, hidden_size=300, batch_first=True)
+        self.context_lstm = nn.LSTM(input_size=300, hidden_size=300, batch_first=True)
         self.aspect_attn = Attention(300, 300)
         self.context_attn = Attention(300, 300)
         self.fc = nn.Linear(600, 3)
