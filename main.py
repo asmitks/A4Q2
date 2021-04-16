@@ -27,6 +27,8 @@ def main(getWeights = False):
         model = IAN(embedding).cuda()
         model.load_state_dict(torch.load(MODEL_PATH))
         # model.eval()
+        test_total_cases = 0
+        test_correct_cases = 0
         for data in test_loader:
             aspects, contexts, labels = data
             aspects, contexts, labels = aspects.cuda(), contexts.cuda(), labels.cuda()
@@ -35,7 +37,7 @@ def main(getWeights = False):
             test_total_cases += labels.shape[0]
             test_correct_cases += (predicts == labels).sum().item()
         test_accuracy = test_correct_cases / test_total_cases
-        print(test)
+        print(test_accuracy)
         return
 
     else:
@@ -79,4 +81,4 @@ def main(getWeights = False):
     end_time = time.time()
     print('Time Costing: %s' % (end_time - start_time))
 
-main(true)
+main(True)
