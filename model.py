@@ -71,17 +71,14 @@ class Attention(nn.Module):
 
     def __init__(self, query_size, key_size):
         super(Attention, self).__init__()
-        self.weights = nn.Parameter(torch.rand(key_size, query_size) * 0.2 - 0.1)
+        self.weights = nn.Parameter(torch.rand(key_size, query_size))
         self.bias = nn.Parameter(torch.zeros(1))
 
-    def forward(self, query, key):
+    def forward(self, vals, key):
         
-        batch_size = key.size(0)
-        time_step = key.size(1)
-        weights = self.weights.repeat(batch_size, 1, 1) 
-        query = query.unsqueeze(-1)    
-        mids = weights.matmul(query)   
-        mids = mids.repeat(time_step, 1, 1, 1).transpose(0, 1) 
+        weights = self.weights.repeat(128, 1, 1) 
+        vals = vals.unsqueeze(-1)    
+        mids = weights.matmul(vals) .repeat(300, 1, 1, 1).transpose(0, 1) 
         key = key.unsqueeze(-2)   
         scores = torch.tanh(key.matmul(mids).squeeze() + self.bias)   
         scores = scores.squeeze()   
