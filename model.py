@@ -76,7 +76,7 @@ class Attention(nn.Module):
 
     def forward(self, query, key):
         
-        weights = self.weights.repeat(128, 1, 1) 
+        weights = self.weights.repeat(key.size(0), 1, 1) 
         query = query.unsqueeze(-1)    
         interim = weights.matmul(query)   
         interim = interim.repeat(key.size(1), 1, 1, 1).transpose(0, 1) 
