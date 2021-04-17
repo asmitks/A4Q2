@@ -65,22 +65,22 @@ class interactiveAttentionNetwork(nn.Module):
             output = torch.tanh(output)
             return output
 
-        
+         
 
 class Attention(nn.Module):
 
     def __init__(self, query_size, key_size):
         super(Attention, self).__init__()
-        self.weights = nn.Parameter(torch.rand(key_size, query_size))
+        self.weights = nn.Parameter(torch.rand(key_size, query_size)).repeat(128, 1, 1) 
         self.bias = nn.Parameter(torch.zeros(1))
 
-    def forward(self, vals, key):
+    def forward(self, query, key):
         
-        weights = self.weights.repeat(128, 1, 1) 
-        vals = vals.unsqueeze(-1)    
-        mids = weights.matmul(vals) .repeat(300, 1, 1, 1).transpose(0, 1) 
+        query = query.unsqueeze(-1)    
+        inter = self.weights.matmul(query)   
+        inter = inter.repeat(key.size(1), 1, 1, 1).transpose(0, 1) 
         key = key.unsqueeze(-2)   
-        scores = torch.tanh(key.matmul(mids).squeeze() + self.bias)   
+        scores = torch.tanh(key.matmul(inter).squeeze() + self.bias)   
         scores = scores.squeeze()   
         scores = scores - scores.max(dim=1, keepdim=True)[0]
         scores = torch.exp(scores) 
